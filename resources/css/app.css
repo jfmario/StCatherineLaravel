@@ -1,0 +1,160 @@
+@import 'tailwindcss';
+@import '../../vendor/livewire/flux/dist/flux.css';
+
+@source '../views';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../vendor/livewire/flux-pro/stubs/**/*.blade.php';
+@source '../../vendor/livewire/flux/stubs/**/*.blade.php';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+    --color-zinc-50: #fafafa;
+    --color-zinc-100: #f5f5f5;
+    --color-zinc-200: #e5e5e5;
+    --color-zinc-300: #d4d4d4;
+    --color-zinc-400: #a3a3a3;
+    --color-zinc-500: #737373;
+    --color-zinc-600: #525252;
+    --color-zinc-700: #404040;
+    --color-zinc-800: #262626;
+    --color-zinc-900: #171717;
+    --color-zinc-950: #0a0a0a;
+
+    --color-accent: var(--color-neutral-800);
+    --color-accent-content: var(--color-neutral-800);
+    --color-accent-foreground: var(--color-white);
+}
+
+@layer theme {
+    .dark {
+        --color-accent: var(--color-white);
+        --color-accent-content: var(--color-white);
+        --color-accent-foreground: var(--color-neutral-800);
+    }
+}
+
+/*
+ * Liturgical color themes. Applied with data-liturgical="<color>" on <html>;
+ * The home page computes the color from the date (see App\Support\LiturgicalCalendar); White uses the base tokens (no rules needed). Each theme has a light and a dark set.
+ */
+:root {
+    --liturgical-surface: var(--color-white);
+    --liturgical-border: var(--color-zinc-200);
+}
+
+:root.dark {
+    --liturgical-surface: var(--color-zinc-900);
+    --liturgical-border: var(--color-zinc-700);
+}
+
+:root[data-liturgical='purple'] {
+    --color-accent: #6b21a8;
+    --color-accent-content: #6b21a8;
+    --color-accent-foreground: #fff;
+    --liturgical-surface: #faf5ff;
+    --liturgical-border: #e9d5ff;
+}
+
+:root.dark[data-liturgical='purple'] {
+    --color-accent: #d8b4fe;
+    --color-accent-content: #d8b4fe;
+    --color-accent-foreground: #3b0764;
+    --liturgical-surface: #1c1124;
+    --liturgical-border: #4c2a6b;
+}
+
+:root[data-liturgical='red'] {
+    --color-accent: #b91c1c;
+    --color-accent-content: #b91c1c;
+    --color-accent-foreground: #fff;
+    --liturgical-surface: #fef2f2;
+    --liturgical-border: #fecaca;
+}
+
+:root.dark[data-liturgical='red'] {
+    --color-accent: #fca5a5;
+    --color-accent-content: #fca5a5;
+    --color-accent-foreground: #450a0a;
+    --liturgical-surface: #231414;
+    --liturgical-border: #6b2a2a;
+}
+
+:root[data-liturgical='green'] {
+    --color-accent: #166534;
+    --color-accent-content: #166534;
+    --color-accent-foreground: #fff;
+    --liturgical-surface: #f0fdf4;
+    --liturgical-border: #bbf7d0;
+}
+
+:root.dark[data-liturgical='green'] {
+    --color-accent: #86efac;
+    --color-accent-content: #86efac;
+    --color-accent-foreground: #052e16;
+    --liturgical-surface: #121f16;
+    --liturgical-border: #24552f;
+}
+
+:root[data-liturgical='gold'] {
+    --color-accent: #a16207;
+    --color-accent-content: #854d0e;
+    --color-accent-foreground: #fff;
+    --liturgical-surface: #fffbeb;
+    --liturgical-border: #fde68a;
+}
+
+:root.dark[data-liturgical='gold'] {
+    --color-accent: #fcd34d;
+    --color-accent-content: #fcd34d;
+    --color-accent-foreground: #422006;
+    --liturgical-surface: #231d0f;
+    --liturgical-border: #6b5416;
+}
+
+:root[data-liturgical='blue'] {
+    --color-accent: #1d4ed8;
+    --color-accent-content: #1d4ed8;
+    --color-accent-foreground: #fff;
+    --liturgical-surface: #eff6ff;
+    --liturgical-border: #bfdbfe;
+}
+
+:root.dark[data-liturgical='blue'] {
+    --color-accent: #93c5fd;
+    --color-accent-content: #93c5fd;
+    --color-accent-foreground: #172554;
+    --liturgical-surface: #111a2b;
+    --liturgical-border: #274a7d;
+}
+
+@layer base {
+
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, currentColor);
+    }
+}
+
+[data-flux-field]:not(ui-radio, ui-checkbox) {
+    @apply grid gap-2;
+}
+
+[data-flux-label] {
+    @apply  !mb-0 !leading-tight;
+}
+
+input:focus[data-flux-control],
+textarea:focus[data-flux-control],
+select:focus[data-flux-control] {
+    @apply outline-hidden ring-2 ring-accent ring-offset-2 ring-offset-accent-foreground;
+}
+
+/* \[:where(&)\]:size-4 {
+    @apply size-4;
+} */
