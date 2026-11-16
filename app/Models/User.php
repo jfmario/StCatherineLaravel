@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use App\Enums\GroupSlug;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -46,6 +48,35 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * @return BelongsToMany<Group, $this>
+     */
+    public function groups(): BelongsToMany
+    {
+        return $this->belongsToMany(Group::class);
+    }
+
+    /**
+     * Determine whether the user belongs to any of the given groups.
+     */
+    public function inGroup(GroupSlug|string ...$slugs): bool
+    {
+        $slugs = array_map(
+            fn (GroupSlug|string $slug): string => $slug instanceof GroupSlug ? $slug->value : $slug,
+            $slugs,
+        );
+
+        return $this->groups()->whereIn('slug', $slugs)->exists();
+    }
+
+    /**
+     * Determine whether the user is a super-user.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->inGroup(GroupSlug::Admin);
     }
 
     /**

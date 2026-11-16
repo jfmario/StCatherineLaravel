@@ -60,6 +60,20 @@ return [
             'report' => false,
         ],
 
+        'music_library' => [
+            'driver' => 's3',
+            'key' => env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            'token' => env('AWS_SESSION_TOKEN'),
+            'region' => env('MUSIC_LIBRARY_REGION', env('AWS_DEFAULT_REGION')),
+            'bucket' => env('MUSIC_LIBRARY_BUCKET'),
+            'root' => env('MUSIC_LIBRARY_ROOT', ''),
+            'visibility' => 'private',
+            'read-only' => true,
+            'throw' => false,
+            'report' => false,
+        ],
+
     ],
 
     /*
