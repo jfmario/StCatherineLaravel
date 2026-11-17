@@ -3,10 +3,12 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Support\LiturgicalCalendar;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -27,6 +29,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
         $this->configureAuthorization();
+        $this->shareLiturgicalColor();
     }
 
     /**
@@ -57,5 +60,16 @@ class AppServiceProvider extends ServiceProvider
     protected function configureAuthorization(): void
     {
         Gate::before(fn (User $user): ?bool => $user->isAdmin() ? true : null);
+    }
+
+    /**
+     * Share the liturgical color with all views.
+     */
+    protected function shareLiturgicalColor(): void
+    {
+        View::composer('*', function ($view): void {
+            $liturgicalCalendar = app(LiturgicalCalendar::class);
+            $view->with('liturgicalColor', $liturgicalCalendar->colorAt(now()));
+        });
     }
 }

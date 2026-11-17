@@ -40,3 +40,15 @@ test('login page lives at /login', function () {
 
     $this->get('/login')->assertOk();
 });
+
+test('login page applies the liturgical color for the current date in Eastern time', function (string $easternTime, string $color) {
+    $this->travelTo(CarbonImmutable::parse($easternTime, 'America/New_York'));
+
+    $this->get(route('login'))
+        ->assertOk()
+        ->assertSee('data-liturgical="'.$color.'"', false);
+})->with([
+    ['2026-11-20 12:00', 'red'],
+    ['2026-11-14 18:00', 'red'],
+    ['2026-11-14 12:00', 'gold'],
+]);
