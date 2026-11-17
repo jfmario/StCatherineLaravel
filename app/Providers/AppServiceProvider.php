@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Enums\RoleName;
 use App\Models\User;
 use App\Support\LiturgicalCalendar;
 use Carbon\CarbonImmutable;
@@ -55,11 +56,11 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * Admin group members pass every gate; everyone else falls through to normal checks.
+     * Admins pass every gate; everyone else falls through to normal checks.
      */
     protected function configureAuthorization(): void
     {
-        Gate::before(fn (User $user): ?bool => $user->isAdmin() ? true : null);
+        Gate::before(fn (User $user): ?bool => $user->hasRole(RoleName::Admin) ? true : null);
     }
 
     /**

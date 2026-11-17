@@ -70,7 +70,7 @@ return [
             'root' => env('MUSIC_LIBRARY_ROOT', ''),
             'visibility' => 'private',
             'read-only' => true,
-            'throw' => false,
+            'throw' => true,
             'report' => false,
         ],
 

@@ -2,8 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Enums\GroupSlug;
-use App\Models\Group;
+use App\Enums\RoleName;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -17,17 +16,15 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(GroupSeeder::class);
+        $this->call(RoleSeeder::class);
 
         if (app()->isProduction()) {
             return;
         }
 
-        $user = User::factory()->create([
+        User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
-        ]);
-
-        $user->groups()->attach(Group::where('slug', GroupSlug::Admin->value)->firstOrFail());
+        ])->assignRole(RoleName::Admin);
     }
 }
