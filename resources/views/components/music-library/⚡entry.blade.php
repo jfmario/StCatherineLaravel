@@ -164,7 +164,6 @@ new class extends Component {
                         @if ($entry->tone)
                             <flux:badge>Tone {{ $entry->tone }}</flux:badge>
                         @endif
-                        <flux:badge>{{ $entry->parts }} {{ \Illuminate\Support\Str::plural('part', $entry->parts) }}</flux:badge>
                     </div>
 
                     @if (filled($entry->description))

@@ -88,7 +88,7 @@ test('an opened entry shows its available media', function () {
         ->call('toggle')
         ->assertSee('Russian')
         ->assertSee('Tone 3')
-        ->assertSee('3 parts')
+        ->assertDontSee('3 parts')
         ->assertSeeHtml('https://www.youtube-nocookie.com/embed/abcdefghijk')
         ->assertSeeHtml('https://signed.test/icons/a.png')
         ->assertSeeHtml('https://signed.test/notes/a.mp3')
