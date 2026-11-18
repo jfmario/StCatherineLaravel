@@ -367,3 +367,66 @@ test('the parts section labels two part music as melody and ison', function () {
         ->assertSeeHtml('https://signed.test/p/i.mp3')
         ->assertDontSeeHtml('https://signed.test/p/stray.mp3');
 });
+
+test('a manager can edit an entry', function () {
+    $this->actingAs(choirUser());
+    $entry = MusicLibraryEntry::factory()->create([
+        'name' => 'Old Name',
+        'tone' => 2,
+        'sheet_music_pdf_path' => 'old.pdf',
+    ]);
+
+    entryComponent($entry)
+        ->call('edit')
+        ->assertSet('form.name', 'Old Name')
+        ->assertSet('form.tone', 2)
+        ->assertSet('form.sheet_music_pdf_path', 'old.pdf')
+        ->set('form.name', 'New Name')
+        ->set('form.tone', '')
+        ->set('form.sheet_music_pdf_path', '')
+        ->call('updateEntry')
+        ->assertHasNoErrors()
+        ->assertSet('name', 'New Name');
+
+    $entry->refresh();
+    expect($entry->name)->toBe('New Name')
+        ->and($entry->tone)->toBeNull()
+        ->and($entry->sheet_music_pdf_path)->toBeNull();
+});
+
+test('the edit form validates input', function () {
+    $this->actingAs(choirUser());
+    $entry = MusicLibraryEntry::factory()->create();
+
+    entryComponent($entry)
+        ->call('edit')
+        ->set('form.name', '')
+        ->set('form.tone', 9)
+        ->call('updateEntry')
+        ->assertHasErrors(['form.name', 'form.tone']);
+});
+
+test('editing requires the manage permission', function (?User $user) {
+    $entry = MusicLibraryEntry::factory()->create(['name' => 'Keep']);
+
+    if ($user) {
+        $this->actingAs($user);
+    }
+
+    entryComponent($entry)->call('edit')->assertForbidden();
+    entryComponent($entry)->set('form.name', 'Hacked')->call('updateEntry')->assertForbidden();
+
+    expect($entry->refresh()->name)->toBe('Keep');
+})->with([
+    'guest' => fn () => null,
+    'editor' => fn () => User::factory()->create()->assignRole(RoleName::Editor),
+]);
+
+test('the edit button is only shown to managers', function () {
+    $entry = MusicLibraryEntry::factory()->create();
+
+    entryComponent($entry)->call('toggle')->assertDontSee('Edit entry');
+
+    $this->actingAs(choirUser());
+    entryComponent($entry)->call('toggle')->assertSee('Edit entry');
+});

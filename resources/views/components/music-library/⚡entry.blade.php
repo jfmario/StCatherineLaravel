@@ -1,17 +1,32 @@
 <?php
 
+use App\Concerns\ManagesMusicLibraryEntryForm;
 use App\Enums\PermissionName;
 use App\Models\MusicLibraryEntry;
 use App\Support\MusicLibraryMedia;
+use Flux\Flux;
+use Illuminate\Support\Arr;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
 new class extends Component {
+    use ManagesMusicLibraryEntryForm;
+
     public int $entryId;
     public string $name;
     public string $sortKey;
     public bool $open = false;
     public bool $showParts = false;
+
+    /** @var array<string, mixed> */
+    public array $form = [];
+
+    public ?string $scanWarning = null;
+
+    public function mount(): void
+    {
+        $this->form = $this->emptyEntryForm();
+    }
 
     /**
      * The full entry is only fetched once it is opened.
@@ -45,6 +60,47 @@ new class extends Component {
     public function toggleParts(): void
     {
         $this->showParts = ! $this->showParts;
+    }
+
+    /**
+     * Load the entry into the form and open the edit modal.
+     */
+    public function edit(): void
+    {
+        $this->authorizeManageMusicLibrary();
+
+        $entry = MusicLibraryEntry::findOrFail($this->entryId);
+
+        $this->scanWarning = null;
+        $values = $entry->only(array_keys(Arr::except($this->emptyEntryForm(), 's3_path')));
+        $values['tradition'] = $entry->tradition?->value;
+
+        $this->form = [
+            ...$this->emptyEntryForm(),
+            ...array_map(fn (mixed $value): mixed => $value ?? '', $values),
+        ];
+
+        Flux::modal('edit-entry-'.$this->entryId)->show();
+    }
+
+    /**
+     * Save changes to the entry.
+     */
+    public function updateEntry(): void
+    {
+        $this->authorizeManageMusicLibrary();
+
+        $attributes = $this->validatedEntryAttributes();
+
+        $entry = MusicLibraryEntry::findOrFail($this->entryId);
+        $entry->update($attributes);
+
+        $this->name = $entry->name;
+        $this->sortKey = $entry->sort_key;
+        unset($this->entry);
+
+        Flux::modal('edit-entry-'.$this->entryId)->close();
+        Flux::toast(variant: 'success', text: __('Entry updated.'));
     }
 
     /**
@@ -93,6 +149,12 @@ new class extends Component {
         @endphp
 
         <flux:card class="mt-2 ml-6">
+            @can(PermissionName::ManageMusicLibrary->value)
+                <div class="mb-4">
+                    <flux:button size="sm" icon="pencil-square" wire:click="edit">Edit entry</flux:button>
+                </div>
+            @endcan
+
             <div class="grid gap-6 md:grid-cols-[1fr_auto]">
                 <div class="min-w-0 space-y-4">
                     <div class="flex flex-wrap items-center gap-2">
@@ -165,4 +227,17 @@ new class extends Component {
             </div>
         </flux:card>
     @endif
+
+    @can(PermissionName::ManageMusicLibrary->value)
+        <flux:modal :name="'edit-entry-'.$entryId" class="md:w-[32rem]">
+            <form wire:submit="updateEntry" class="space-y-4">
+                <flux:heading size="lg">Edit {{ $name }}</flux:heading>
+                <x-music-library.entry-fields :form="$form" :scan-warning="$scanWarning" />
+                <div class="flex">
+                    <flux:spacer />
+                    <flux:button type="submit" variant="primary">Save</flux:button>
+                </div>
+            </form>
+        </flux:modal>
+    @endcan
 </div>
